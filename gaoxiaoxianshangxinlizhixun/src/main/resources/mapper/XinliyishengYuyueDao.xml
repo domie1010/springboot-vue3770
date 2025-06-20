@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.XinliyishengYuyueDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.xinliyisheng_id as xinliyishengId
+        ,a.yonghu_id as yonghuId
+        ,a.xinliyisheng_yuyue_text as xinliyishengYuyueText
+        ,a.xinliyisheng_yuyue_time as xinliyishengYuyueTime
+        ,a.xinliyisheng_yuyue_yesno_types as xinliyishengYuyueYesnoTypes
+        ,a.xinliyisheng_yuyue_yesno_text as xinliyishengYuyueYesnoText
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.XinliyishengYuyueView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,xinliyisheng.xinliyisheng_name as xinliyishengName
+        ,xinliyisheng.xinliyisheng_types as xinliyishengTypes
+        ,xinliyisheng.xinliyisheng_photo as xinliyishengPhoto
+        ,xinliyisheng.xinliyisheng_jiuzhi as xinliyishengJiuzhi
+        ,xinliyisheng.xinliyisheng_zhugong as xinliyishengZhugong
+        ,xinliyisheng.xinliyisheng_zhiwei as xinliyishengZhiwei
+        ,xinliyisheng.xinliyisheng_content as xinliyishengContent
+        ,xinliyisheng.xinliyisheng_delete as xinliyishengDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM xinliyisheng_yuyue  a
+        left JOIN xinliyisheng xinliyisheng ON a.xinliyisheng_id = xinliyisheng.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.xinliyishengId != null and params.xinliyishengId != ''">
+                and (
+                    a.xinliyisheng_id = #{params.xinliyishengId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test=" params.xinliyishengYuyueText != '' and params.xinliyishengYuyueText != null and params.xinliyishengYuyueText != 'null' ">
+                and a.xinliyisheng_yuyue_text like CONCAT('%',#{params.xinliyishengYuyueText},'%')
+            </if>
+            <if test=" params.xinliyishengYuyueTimeStart != '' and params.xinliyishengYuyueTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.xinliyisheng_yuyue_time) >= UNIX_TIMESTAMP(#{params.xinliyishengYuyueTimeStart}) ]]>
+            </if>
+            <if test=" params.xinliyishengYuyueTimeEnd != '' and params.xinliyishengYuyueTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.xinliyisheng_yuyue_time) <= UNIX_TIMESTAMP(#{params.xinliyishengYuyueTimeEnd}) ]]>
+            </if>
+            <if test="params.xinliyishengYuyueYesnoTypes != null and params.xinliyishengYuyueYesnoTypes != ''">
+                and a.xinliyisheng_yuyue_yesno_types = #{params.xinliyishengYuyueYesnoTypes}
+            </if>
+            <if test=" params.xinliyishengYuyueYesnoText != '' and params.xinliyishengYuyueYesnoText != null and params.xinliyishengYuyueYesnoText != 'null' ">
+                and a.xinliyisheng_yuyue_yesno_text like CONCAT('%',#{params.xinliyishengYuyueYesnoText},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断心理医生的id不为空 -->
+            <if test=" params.xinliyishengIdNotNull != '' and params.xinliyishengIdNotNull != null and params.xinliyishengIdNotNull != 'null' ">
+                and a.xinliyisheng_id IS NOT NULL
+            </if>
+            <if test=" params.xinliyishengName != '' and params.xinliyishengName != null and params.xinliyishengName != 'null' ">
+                and xinliyisheng.xinliyisheng_name like CONCAT('%',#{params.xinliyishengName},'%')
+            </if>
+            <if test="params.xinliyishengTypes != null  and params.xinliyishengTypes != ''">
+                and xinliyisheng.xinliyisheng_types = #{params.xinliyishengTypes}
+            </if>
+
+            <if test=" params.xinliyishengJiuzhi != '' and params.xinliyishengJiuzhi != null and params.xinliyishengJiuzhi != 'null' ">
+                and xinliyisheng.xinliyisheng_jiuzhi like CONCAT('%',#{params.xinliyishengJiuzhi},'%')
+            </if>
+            <if test=" params.xinliyishengZhugong != '' and params.xinliyishengZhugong != null and params.xinliyishengZhugong != 'null' ">
+                and xinliyisheng.xinliyisheng_zhugong like CONCAT('%',#{params.xinliyishengZhugong},'%')
+            </if>
+            <if test=" params.xinliyishengZhiwei != '' and params.xinliyishengZhiwei != null and params.xinliyishengZhiwei != 'null' ">
+                and xinliyisheng.xinliyisheng_zhiwei like CONCAT('%',#{params.xinliyishengZhiwei},'%')
+            </if>
+            <if test=" params.xinliyishengContent != '' and params.xinliyishengContent != null and params.xinliyishengContent != 'null' ">
+                and xinliyisheng.xinliyisheng_content like CONCAT('%',#{params.xinliyishengContent},'%')
+            </if>
+            <if test="params.xinliyishengDeleteStart != null  and params.xinliyishengDeleteStart != '' ">
+                <![CDATA[  and xinliyisheng.xinliyisheng_delete >= #{params.xinliyishengDeleteStart}   ]]>
+            </if>
+            <if test="params.xinliyishengDeleteEnd != null  and params.xinliyishengDeleteEnd != '' ">
+                <![CDATA[  and xinliyisheng.xinliyisheng_delete <= #{params.xinliyishengDeleteEnd}   ]]>
+            </if>
+            <if test="params.xinliyishengDelete != null  and params.xinliyishengDelete != '' ">
+                and xinliyisheng.xinliyisheng_delete = #{params.xinliyishengDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xinliyisheng.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xinliyisheng.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
